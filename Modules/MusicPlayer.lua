@@ -151,36 +151,42 @@ function MusicPlayer.init(bg, btn, indicator, onToggle)
         end
     end)
 
-    -- Doble click para abrir menu
     local lastClick = 0
-    btn.MouseButton1Click:Connect(function()
-        local now = tick()
-        if now - lastClick < 0.3 then
-            if menuVisible then
-                closeMenu()
-            else
-                openMenu()
-            end
+local clickPending = false
+
+btn.MouseButton1Click:Connect(function()
+    local now = tick()
+    if now - lastClick < 0.35 then
+        clickPending = false
+        if menuVisible then
+            closeMenu()
         else
-            -- Click simple: toggle musica
-            if currentSound then
-                active = not active
-                updateVisuals()
-                if active then
-                    currentSound:Play()
-                    print("[ToolHUD] MusicPlayer PLAYING: " .. currentId)
-                else
-                    currentSound:Pause()
-                    print("[ToolHUD] MusicPlayer PAUSED.")
-                end
-                if onToggle then onToggle(active) end
-            else
-                status.Text = "Set an ID first!"
-                openMenu()
-            end
+            openMenu()
         end
-        lastClick = now
+        lastClick = 0
+        return
+    end
+    lastClick = now
+    clickPending = true
+    task.delay(0.35, function()
+        if not clickPending then return end
+        clickPending = false
+        if currentSound then
+            active = not active
+            updateVisuals()
+            if active then
+                currentSound:Play()
+                print("[ToolHUD] MusicPlayer PLAYING: " .. currentId)
+            else
+                currentSound:Pause()
+                print("[ToolHUD] MusicPlayer PAUSED.")
+            end
+            if onToggle then onToggle(active) end
+        else
+            openMenu()
+        end
     end)
+end)
 
 end
 
