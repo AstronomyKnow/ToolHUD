@@ -96,7 +96,16 @@ end
 
 if config.modules.MusicPlayer.enabled then
     local bg, btn, indicator = UI.createButton("MusicPlayer", config.modules.MusicPlayer)
-    print("[ToolHUD] MusicPlayer loaded, coming soon :)")
+    local MusicPlayer = import("Modules/MusicPlayer.lua")
+    if MusicPlayer then
+        MusicPlayer.init(bg, btn, indicator, function(state)
+            config.modules.MusicPlayer.enabled = state
+            Config.save(config)
+        end)
+        print("[ToolHUD] MusicPlayer loaded successfully.")
+    else
+        warn("[ToolHUD] MusicPlayer failed to load.")
+    end
 end
 
 print("[ToolHUD] Script loaded somehow. Press Ctrl+Shift+H to open the menu.")
